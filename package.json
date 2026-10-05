@@ -11,14 +11,23 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
-    "type-check": "pnpm -r type-check"
+    "type-check": "pnpm -r type-check",
+    "spike": "mkdir -p output && pnpm exec tsx spikes/render-spikes.ts"
   },
   "devDependencies": {
     "@eslint/js": "^9.21.0",
+    "@remotion/bundler": "4.0.533",
+    "@remotion/renderer": "4.0.533",
     "@types/node": "^22.13.9",
+    "@types/react": "^19.3.0",
+    "@types/react-dom": "^19.3.0",
     "eslint": "^9.21.0",
     "eslint-config-prettier": "^10.0.2",
     "prettier": "^3.5.3",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.533",
+    "tsx": "^4.23.15",
     "typescript": "^5.7.3",
     "typescript-eslint": "^8.26.0",
     "vitest": "^3.0.7"
