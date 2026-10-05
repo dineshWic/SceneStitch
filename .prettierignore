@@ -1,0 +1,9 @@
+node_modules
+dist
+build
+coverage
+.remotion
+*.tsbuildinfo
+pnpm-lock.yaml
+samples/
+docs/
