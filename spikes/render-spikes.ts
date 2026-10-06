@@ -293,6 +293,15 @@ async function main() {
   const bundled = await bundle({
     entryPoint: ENTRY_POINT,
     publicDir: SAMPLES_DIR,
+    webpackOverride: (config) => ({
+      ...config,
+      resolve: {
+        ...config.resolve,
+        extensionAlias: {
+          '.js': ['.tsx', '.ts', '.js'],
+        },
+      },
+    }),
     onProgress: (p) => process.stdout.write(`\r  Bundle: ${p}%   `),
   });
   console.log(`\n  ✅ Bundle complete in ${msToHuman(Date.now() - t0)}`);
