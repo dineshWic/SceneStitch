@@ -4,10 +4,13 @@ import { Spike2aTimeline } from './components/Spike2aComposition';
 import { Spike2bTimeline } from './components/Spike2bComposition';
 import { Spike2cTimelineWithAudio, Spike2cTimelineSilent } from './components/Spike2cComposition';
 import { Spike2dTimeline } from './components/Spike2dComposition';
+import { Root as CompositionRoot } from '../packages/composition/src/Root';
 
 const RemotionRoot: React.FC = () => {
   return (
     <>
+      <CompositionRoot />
+
       {/* Spike 2a: Remotion render - 3 clips + Ken Burns image */}
       <Composition
         id="Spike2aComposition"
