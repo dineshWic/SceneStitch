@@ -41,9 +41,11 @@ export async function importAsset(
   const assetId = uuidv4();
   const ext = path.extname(sanitized).toLowerCase();
 
-  const isVideo = mimeType.startsWith('video/') ||
+  const isVideo =
+    mimeType.startsWith('video/') ||
     ['.mp4', '.mov', '.avi', '.mkv', '.webm', '.mts', '.m4v'].includes(ext);
-  const isImage = mimeType.startsWith('image/') ||
+  const isImage =
+    mimeType.startsWith('image/') ||
     ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'].includes(ext);
 
   // 1. Save original
@@ -81,11 +83,7 @@ export async function importAsset(
   const thumbAbsPath = path.join(thumbDir, thumbFilename);
 
   if (isVideo || isImage) {
-    await generateThumbnail(
-      originalPath,
-      thumbAbsPath,
-      isVideo ? probe.duration : undefined,
-    );
+    await generateThumbnail(originalPath, thumbAbsPath, isVideo ? probe.duration : undefined);
   }
 
   const thumbPath = path.join('thumbs', thumbFilename);
@@ -95,9 +93,7 @@ export async function importAsset(
     id: assetId,
     type: assetType,
     path: workPath,
-    ...(isVideo || assetType === 'audio'
-      ? { duration: probe.duration }
-      : {}),
+    ...(isVideo || assetType === 'audio' ? { duration: probe.duration } : {}),
     ...(isVideo ? { hasAudio: probe.hasAudio } : {}),
   };
 

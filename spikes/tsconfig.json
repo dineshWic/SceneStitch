@@ -7,9 +7,15 @@
     "paths": {
       "react": ["../node_modules/.pnpm/react@19.3.0/node_modules/react"],
       "react/*": ["../node_modules/.pnpm/react@19.3.0/node_modules/react/*"],
-      "remotion": ["../node_modules/.pnpm/remotion@4.0.533_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/remotion"],
-      "@remotion/bundler": ["../node_modules/.pnpm/@remotion+bundler@4.0.533_postcss@8.5.28_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@remotion/bundler"],
-      "@remotion/renderer": ["../node_modules/.pnpm/@remotion+renderer@4.0.533_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@remotion/renderer"]
+      "remotion": [
+        "../node_modules/.pnpm/remotion@4.0.533_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/remotion"
+      ],
+      "@remotion/bundler": [
+        "../node_modules/.pnpm/@remotion+bundler@4.0.533_postcss@8.5.28_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@remotion/bundler"
+      ],
+      "@remotion/renderer": [
+        "../node_modules/.pnpm/@remotion+renderer@4.0.533_react-dom@19.3.0_react@19.3.0__react@19.3.0/node_modules/@remotion/renderer"
+      ]
     }
   },
   "include": ["**/*"]

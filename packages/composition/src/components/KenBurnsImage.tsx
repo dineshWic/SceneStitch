@@ -21,15 +21,10 @@ export const KenBurnsImage: React.FC<KenBurnsImageProps> = ({
 }) => {
   const frame = useCurrentFrame();
 
-  const scale = interpolate(
-    frame,
-    [0, Math.max(1, durationInFrames)],
-    [zoomFrom, zoomTo],
-    {
-      extrapolateLeft: 'clamp',
-      extrapolateRight: 'clamp',
-    },
-  );
+  const scale = interpolate(frame, [0, Math.max(1, durationInFrames)], [zoomFrom, zoomTo], {
+    extrapolateLeft: 'clamp',
+    extrapolateRight: 'clamp',
+  });
 
   if (crop === 'contain') {
     return (

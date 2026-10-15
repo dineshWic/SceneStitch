@@ -31,10 +31,7 @@ export interface ComputedSceneFrame {
   bgColor: string;
 }
 
-export function computeSceneFrames(
-  scenes: SceneSpec[],
-  fps: number = 30,
-): ComputedSceneFrame[] {
+export function computeSceneFrames(scenes: SceneSpec[], fps: number = 30): ComputedSceneFrame[] {
   return scenes.map((scene, index) => {
     // Boundary rounding rule:
     // First scene starts at frame 0.
@@ -89,9 +86,7 @@ export const SceneCard: React.FC<{
       >
         Scene {scene.id}
       </div>
-      <div style={{ fontSize: 50, marginBottom: 40, textAlign: 'center' }}>
-        {scene.label}
-      </div>
+      <div style={{ fontSize: 50, marginBottom: 40, textAlign: 'center' }}>{scene.label}</div>
       <div
         style={{
           fontSize: 36,
@@ -102,8 +97,7 @@ export const SceneCard: React.FC<{
         }}
       >
         <div>
-          Frames: {scene.startFrame} → {scene.endFrame} ({scene.durationInFrames}{' '}
-          frames)
+          Frames: {scene.startFrame} → {scene.endFrame} ({scene.durationInFrames} frames)
         </div>
         <div>Current Scene Frame: {frameInScene}</div>
         <div>Global Frame: {absoluteFrame} / 900</div>
@@ -126,11 +120,7 @@ export const Spike2dTimeline: React.FC = () => {
       }}
     >
       {computedScenes.map((scene) => (
-        <Sequence
-          key={scene.id}
-          from={scene.startFrame}
-          durationInFrames={scene.durationInFrames}
-        >
+        <Sequence key={scene.id} from={scene.startFrame} durationInFrames={scene.durationInFrames}>
           <SceneCard scene={scene} globalFps={30} />
         </Sequence>
       ))}

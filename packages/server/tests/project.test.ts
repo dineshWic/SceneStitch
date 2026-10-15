@@ -36,7 +36,7 @@ describe('Project Service', () => {
     expect(project.assets).toHaveLength(0);
     expect(project.scenes).toHaveLength(0);
 
-    const id = (project as { id: string }).id;
+    const id = project.id;
     const projectDir = path.join(dataDir, id);
 
     // Verify folder structure
@@ -50,7 +50,7 @@ describe('Project Service', () => {
   it('writes project.json atomically (file is valid JSON immediately)', async () => {
     const dataDir = await makeTmpDir();
     const project = await createProject(dataDir, { name: 'Atomic Write Test' });
-    const id = (project as { id: string }).id;
+    const id = project.id;
 
     const raw = await fs.readFile(path.join(dataDir, id, 'project.json'), 'utf-8');
     const parsed = JSON.parse(raw);
@@ -76,11 +76,11 @@ describe('Project Service', () => {
   it('reads a project by ID', async () => {
     const dataDir = await makeTmpDir();
     const created = await createProject(dataDir, { name: 'Read Test' });
-    const id = (created as { id: string }).id;
+    const id = created.id;
 
     const found = await getProject(dataDir, id);
     expect(found?.name).toBe('Read Test');
-    expect((found as { id: string } | null)?.id).toBe(id);
+    expect(found?.id).toBe(id);
   });
 
   it('returns null for a non-existent project ID', async () => {
@@ -92,7 +92,7 @@ describe('Project Service', () => {
   it('updates a project field', async () => {
     const dataDir = await makeTmpDir();
     const project = await createProject(dataDir, { name: 'Original Name' });
-    const id = (project as { id: string }).id;
+    const id = project.id;
 
     const updated = await updateProject(dataDir, id, { name: 'New Name' });
     expect(updated?.name).toBe('New Name');
@@ -105,7 +105,7 @@ describe('Project Service', () => {
   it('deletes a project and its folder', async () => {
     const dataDir = await makeTmpDir();
     const project = await createProject(dataDir, { name: 'To Delete' });
-    const id = (project as { id: string }).id;
+    const id = project.id;
 
     const ok = await deleteProject(dataDir, id);
     expect(ok).toBe(true);

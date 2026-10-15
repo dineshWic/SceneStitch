@@ -19,10 +19,7 @@ export function buildApp(options: AppOptions): FastifyInstance {
 
   // CORS: only allow localhost dev UI origins
   fastify.register(cors, {
-    origin: [
-      'http://localhost:5173',
-      'http://127.0.0.1:5173',
-    ],
+    origin: ['http://localhost:5173', 'http://127.0.0.1:5173'],
   });
 
   // Multipart for file uploads

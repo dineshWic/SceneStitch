@@ -2,7 +2,8 @@ import type { Scene } from './schema.js';
 
 export interface ValidationError {
   sceneId: number | string;
-  code: 'ZERO_DURATION' | 'INVALID_BOUNDARIES' | 'NON_INCREASING' | 'GAP_DETECTED' | 'OVERLAP_DETECTED';
+  code:
+    'ZERO_DURATION' | 'INVALID_BOUNDARIES' | 'NON_INCREASING' | 'GAP_DETECTED' | 'OVERLAP_DETECTED';
   message: string;
 }
 

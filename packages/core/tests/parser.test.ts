@@ -58,7 +58,7 @@ Time,Scene,Story
   });
 
   it('parses TSV table input', () => {
-    const tsv = "Time\tScene\tStory\n0.0–3.0s\t1\tIntro\n3.0–8.0s\t2\tBody";
+    const tsv = 'Time\tScene\tStory\n0.0–3.0s\t1\tIntro\n3.0–8.0s\t2\tBody';
     const { scenes, errors } = parseTimelineTable(tsv);
     expect(errors.length).toBe(0);
     expect(scenes.length).toBe(2);

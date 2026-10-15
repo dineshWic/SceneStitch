@@ -1,12 +1,5 @@
 import React from 'react';
-import {
-  Composition,
-  Sequence,
-  OffthreadVideo,
-  Audio,
-  interpolate,
-  staticFile,
-} from 'remotion';
+import { Composition, Sequence, OffthreadVideo, Audio, interpolate, staticFile } from 'remotion';
 
 export const calculateMusicVolume = (frame: number): number => {
   // Voiceover runs from frame 0 to 75 (2.5 seconds @ 30 fps)
@@ -63,10 +56,7 @@ export const Spike2cTimelineWithAudio: React.FC = () => {
       </Sequence>
 
       {/* Music Track with dynamic ducking volume function */}
-      <Audio
-        src={staticFile('music01.mp3')}
-        volume={(frame) => calculateMusicVolume(frame)}
-      />
+      <Audio src={staticFile('music01.mp3')} volume={(frame) => calculateMusicVolume(frame)} />
     </div>
   );
 };

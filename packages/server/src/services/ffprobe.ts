@@ -52,8 +52,10 @@ function parseFraction(fraction: string): number {
 
 export async function probeFile(filePath: string): Promise<ProbeData> {
   const { stdout } = await execFileAsync('ffprobe', [
-    '-v', 'quiet',
-    '-print_format', 'json',
+    '-v',
+    'quiet',
+    '-print_format',
+    'json',
     '-show_streams',
     '-show_format',
     filePath,
@@ -63,9 +65,7 @@ export async function probeFile(filePath: string): Promise<ProbeData> {
   const videoStream = raw.streams.find((s) => s.codec_type === 'video');
   const audioStream = raw.streams.find((s) => s.codec_type === 'audio');
 
-  const duration = parseFloat(
-    videoStream?.duration ?? raw.format.duration ?? '0',
-  );
+  const duration = parseFloat(videoStream?.duration ?? raw.format.duration ?? '0');
   const width = videoStream?.width ?? 0;
   const height = videoStream?.height ?? 0;
 
@@ -73,7 +73,7 @@ export async function probeFile(filePath: string): Promise<ProbeData> {
   const rawFps =
     videoStream?.r_frame_rate && videoStream.r_frame_rate !== '0/0'
       ? videoStream.r_frame_rate
-      : videoStream?.avg_frame_rate ?? '0/1';
+      : (videoStream?.avg_frame_rate ?? '0/1');
   const fps = parseFraction(rawFps);
 
   // Rotation from side-data, stream tags, or format tags
@@ -86,11 +86,12 @@ export async function probeFile(filePath: string): Promise<ProbeData> {
     raw.format.tags?.rotate ??
     raw.format.tags?.ROTATE;
 
-  const rawRotation = sideDataRotation !== undefined
-    ? Math.abs(sideDataRotation)
-    : rotateTags
-      ? Math.abs(parseInt(rotateTags, 10))
-      : 0;
+  const rawRotation =
+    sideDataRotation !== undefined
+      ? Math.abs(sideDataRotation)
+      : rotateTags
+        ? Math.abs(parseInt(rotateTags, 10))
+        : 0;
   const rotation = isNaN(rawRotation) ? 0 : rawRotation;
 
   return {

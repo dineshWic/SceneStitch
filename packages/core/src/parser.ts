@@ -56,7 +56,9 @@ export function parseTimeRange(rangeStr: string): { start: number; end: number }
   const end = parseTime(parts[1]);
 
   if (start > end) {
-    throw new Error(`Start time (${start}s) is greater than end time (${end}s) in range "${rangeStr}"`);
+    throw new Error(
+      `Start time (${start}s) is greater than end time (${end}s) in range "${rangeStr}"`,
+    );
   }
 
   return { start, end };
@@ -86,9 +88,7 @@ export function parseTimelineTable(text: string): ParseResult {
 
     if (isMarkdown) {
       if (!rawLine.includes('|')) continue;
-      cells = rawLine
-        .split('|')
-        .map((c) => c.trim());
+      cells = rawLine.split('|').map((c) => c.trim());
       // Remove empty cells from leading/trailing pipe
       if (cells[0] === '') cells.shift();
       if (cells[cells.length - 1] === '') cells.pop();

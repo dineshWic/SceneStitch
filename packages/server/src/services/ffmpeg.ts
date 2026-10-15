@@ -24,14 +24,22 @@ export async function normalizeVideo(
 
   await execFileAsync('ffmpeg', [
     '-y',
-    '-i', inputPath,
-    '-vf', `fps=${targetFps}`,
-    '-c:v', 'libx264',
-    '-crf', String(crf),
-    '-preset', preset,
-    '-pix_fmt', 'yuv420p',
-    '-c:a', 'aac',
-    '-movflags', '+faststart',
+    '-i',
+    inputPath,
+    '-vf',
+    `fps=${targetFps}`,
+    '-c:v',
+    'libx264',
+    '-crf',
+    String(crf),
+    '-preset',
+    preset,
+    '-pix_fmt',
+    'yuv420p',
+    '-c:a',
+    'aac',
+    '-movflags',
+    '+faststart',
     outputPath,
   ]);
 }
@@ -45,19 +53,22 @@ export async function generateThumbnail(
   outputPath: string,
   durationSecs?: number,
 ): Promise<void> {
-  const offset = durationSecs !== undefined
-    ? Math.min(1, durationSecs / 2)
-    : 1;
+  const offset = durationSecs !== undefined ? Math.min(1, durationSecs / 2) : 1;
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
   await execFileAsync('ffmpeg', [
     '-y',
-    '-ss', String(offset),
-    '-i', inputPath,
-    '-vframes', '1',
-    '-vf', 'scale=360:-1',
-    '-q:v', '3',
+    '-ss',
+    String(offset),
+    '-i',
+    inputPath,
+    '-vframes',
+    '1',
+    '-vf',
+    'scale=360:-1',
+    '-q:v',
+    '3',
     outputPath,
   ]);
 }

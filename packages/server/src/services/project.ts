@@ -31,7 +31,7 @@ function projectJsonPath(dataDir: string, projectId: string): string {
 export async function createProject(
   dataDir: string,
   input: CreateProjectInput,
-): Promise<Project> {
+): Promise<Project & { id: string }> {
   const id = uuidv4();
   const dir = projectDir(dataDir, id);
 
@@ -109,10 +109,7 @@ export async function updateProject(
   return { ...updated, id: projectId };
 }
 
-export async function deleteProject(
-  dataDir: string,
-  projectId: string,
-): Promise<boolean> {
+export async function deleteProject(dataDir: string, projectId: string): Promise<boolean> {
   const dir = projectDir(dataDir, projectId);
   try {
     await fs.rm(dir, { recursive: true, force: true });

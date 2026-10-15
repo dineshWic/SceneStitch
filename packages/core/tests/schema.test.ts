@@ -14,7 +14,7 @@ describe('Zod Schemas', () => {
         inPoint: 0.5,
       },
       caption: {
-        text: 'THIS ISN\'T A DOG 😳',
+        text: "THIS ISN'T A DOG 😳",
         offset: 0.0,
       },
     };
@@ -30,12 +30,8 @@ describe('Zod Schemas', () => {
     const projectData = {
       name: 'Capybara Salon',
       settings: { width: 1080, height: 1920, fps: 30, defaultFit: 'trim' as const },
-      assets: [
-        { id: 'a1', type: 'video' as const, path: 'media/clip01.mp4', duration: 5.0 },
-      ],
-      scenes: [
-        { id: 1, label: 'Scene 1', start: 0.0, end: 2.2 },
-      ],
+      assets: [{ id: 'a1', type: 'video' as const, path: 'media/clip01.mp4', duration: 5.0 }],
+      scenes: [{ id: 1, label: 'Scene 1', start: 0.0, end: 2.2 }],
     };
 
     const parsed = ProjectSchema.parse(projectData);

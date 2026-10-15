@@ -13,9 +13,7 @@ describe('Timeline Validator', () => {
   });
 
   it('detects zero duration scenes', () => {
-    const scenes: Scene[] = [
-      { id: 1, label: 'Scene 1', start: 2.0, end: 2.0 },
-    ];
+    const scenes: Scene[] = [{ id: 1, label: 'Scene 1', start: 2.0, end: 2.0 }];
     const errors = validateTimeline(scenes);
     expect(errors.length).toBe(1);
     expect(errors[0]?.code).toBe('ZERO_DURATION');
@@ -23,9 +21,7 @@ describe('Timeline Validator', () => {
   });
 
   it('detects invalid negative duration boundaries', () => {
-    const scenes: Scene[] = [
-      { id: 1, label: 'Scene 1', start: 5.0, end: 2.0 },
-    ];
+    const scenes: Scene[] = [{ id: 1, label: 'Scene 1', start: 5.0, end: 2.0 }];
     const errors = validateTimeline(scenes);
     expect(errors.length).toBe(1);
     expect(errors[0]?.code).toBe('INVALID_BOUNDARIES');

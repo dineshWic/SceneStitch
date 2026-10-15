@@ -109,10 +109,7 @@ export const MusicSchema = z.object({
 export type Music = z.infer<typeof MusicSchema>;
 
 export const TransitionSchema = z.object({
-  between: z.tuple([
-    z.union([z.number(), z.string()]),
-    z.union([z.number(), z.string()]),
-  ]),
+  between: z.tuple([z.union([z.number(), z.string()]), z.union([z.number(), z.string()])]),
   type: z.string(),
   duration: z.number().positive().optional(),
 });

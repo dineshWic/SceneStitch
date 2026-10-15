@@ -1,10 +1,6 @@
 import React from 'react';
 import { OffthreadVideo, Sequence, staticFile } from 'remotion';
-import {
-  calculateFit,
-  type Asset,
-  type Visual,
-} from '@scenestitch/core';
+import { calculateFit, type Asset, type Visual } from '@scenestitch/core';
 import { KenBurnsImage } from './KenBurnsImage.js';
 
 export interface SceneVisualProps {
@@ -15,7 +11,12 @@ export interface SceneVisualProps {
 }
 
 function resolveAssetPath(path: string): string {
-  if (path.startsWith('http://') || path.startsWith('https://') || path.startsWith('file://') || path.startsWith('data:')) {
+  if (
+    path.startsWith('http://') ||
+    path.startsWith('https://') ||
+    path.startsWith('file://') ||
+    path.startsWith('data:')
+  ) {
     return path;
   }
   return staticFile(path);
@@ -51,15 +52,10 @@ export const SceneVisual: React.FC<SceneVisualProps> = ({
   const sceneDurationSec = durationInFrames / fps;
   const sourceDurationSec = asset.duration ?? sceneDurationSec;
 
-  const fitResult = calculateFit(
-    sceneDurationSec,
-    sourceDurationSec,
-    visual?.fit ?? 'trim',
-    {
-      inPoint: visual?.inPoint ?? 0,
-      fps,
-    },
-  );
+  const fitResult = calculateFit(sceneDurationSec, sourceDurationSec, visual?.fit ?? 'trim', {
+    inPoint: visual?.inPoint ?? 0,
+    fps,
+  });
 
   const crop = visual?.crop ?? 'cover';
   const zoomFrom = visual?.motion?.zoomFrom ?? 1.0;
@@ -152,17 +148,10 @@ export const SceneVisual: React.FC<SceneVisualProps> = ({
     for (let i = 0; i < fitResult.loops; i++) {
       const fromFrame = i * loopDurationFrames;
       if (fromFrame >= durationInFrames) break;
-      const thisLoopDuration = Math.min(
-        loopDurationFrames,
-        durationInFrames - fromFrame,
-      );
+      const thisLoopDuration = Math.min(loopDurationFrames, durationInFrames - fromFrame);
 
       loopSequences.push(
-        <Sequence
-          key={i}
-          from={fromFrame}
-          durationInFrames={thisLoopDuration}
-        >
+        <Sequence key={i} from={fromFrame} durationInFrames={thisLoopDuration}>
           <OffthreadVideo
             src={src}
             startFrom={inPointInFrames}

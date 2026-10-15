@@ -79,7 +79,9 @@ async function runStep4Render() {
     inputProps: { project },
   });
 
-  console.log(`Composition dynamic duration: ${composition.durationInFrames} frames (${composition.durationInFrames / composition.fps}s)`);
+  console.log(
+    `Composition dynamic duration: ${composition.durationInFrames} frames (${composition.durationInFrames / composition.fps}s)`,
+  );
 
   const outPath = path.join(OUTPUT_DIR, 'step4-silent-ref.mp4');
   console.log(`Rendering silent video to ${outPath}...`);
@@ -97,15 +99,23 @@ async function runStep4Render() {
   console.log('Render complete! Probing with ffprobe...');
 
   const rawProbe = execFileSync('ffprobe', [
-    '-v', 'quiet',
-    '-print_format', 'json',
+    '-v',
+    'quiet',
+    '-print_format',
+    'json',
     '-show_streams',
     '-show_format',
     outPath,
   ]).toString();
 
   const probe = JSON.parse(rawProbe) as {
-    streams: Array<{ codec_type: string; duration?: string; nb_frames: string; width: number; height: number }>;
+    streams: Array<{
+      codec_type: string;
+      duration?: string;
+      nb_frames: string;
+      width: number;
+      height: number;
+    }>;
     format: { duration?: string };
   };
   const stream = probe.streams.find((s) => s.codec_type === 'video')!;

@@ -1,11 +1,7 @@
 import React from 'react';
 import { Sequence } from 'remotion';
 import { z } from 'zod';
-import {
-  buildFrameTimeline,
-  ProjectSchema,
-  type Asset,
-} from '@scenestitch/core';
+import { buildFrameTimeline, ProjectSchema, type Asset } from '@scenestitch/core';
 import { SceneVisual } from './SceneVisual.js';
 
 export const MainCompositionSchema = z.object({
@@ -45,9 +41,7 @@ export const MainComposition: React.FC<MainCompositionProps> = ({ project }) => 
         const rawScene = project.scenes[index];
         if (!rawScene) return null;
 
-        const asset = rawScene.visual?.assetId
-          ? assetMap[rawScene.visual.assetId]
-          : undefined;
+        const asset = rawScene.visual?.assetId ? assetMap[rawScene.visual.assetId] : undefined;
 
         return (
           <Sequence

@@ -44,35 +44,26 @@ export async function projectRoutes(
   );
 
   // GET /projects/:id
-  fastify.get<{ Params: { id: string } }>(
-    '/projects/:id',
-    async (req, reply) => {
-      const project = await getProject(dataDir, req.params.id);
-      if (!project) return reply.status(404).send({ error: 'Project not found' });
-      return reply.send(project);
-    },
-  );
+  fastify.get<{ Params: { id: string } }>('/projects/:id', async (req, reply) => {
+    const project = await getProject(dataDir, req.params.id);
+    if (!project) return reply.status(404).send({ error: 'Project not found' });
+    return reply.send(project);
+  });
 
   // PUT /projects/:id
   fastify.put<{
     Params: { id: string };
     Body: Record<string, unknown>;
-  }>(
-    '/projects/:id',
-    async (req, reply) => {
-      const updated = await updateProject(dataDir, req.params.id, req.body as never);
-      if (!updated) return reply.status(404).send({ error: 'Project not found' });
-      return reply.send(updated);
-    },
-  );
+  }>('/projects/:id', async (req, reply) => {
+    const updated = await updateProject(dataDir, req.params.id, req.body as never);
+    if (!updated) return reply.status(404).send({ error: 'Project not found' });
+    return reply.send(updated);
+  });
 
   // DELETE /projects/:id
-  fastify.delete<{ Params: { id: string } }>(
-    '/projects/:id',
-    async (req, reply) => {
-      const ok = await deleteProject(dataDir, req.params.id);
-      if (!ok) return reply.status(404).send({ error: 'Project not found' });
-      return reply.status(204).send();
-    },
-  );
+  fastify.delete<{ Params: { id: string } }>('/projects/:id', async (req, reply) => {
+    const ok = await deleteProject(dataDir, req.params.id);
+    if (!ok) return reply.status(404).send({ error: 'Project not found' });
+    return reply.status(204).send();
+  });
 }

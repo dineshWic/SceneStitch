@@ -1,9 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import {
-  buildFrameTimeline,
-  parseTimelineTable,
-  type Project,
-} from '@scenestitch/core';
+import { buildFrameTimeline, parseTimelineTable, type Project } from '@scenestitch/core';
 import { calculateProjectMetadata } from '../src/index.js';
 
 const CAPYBARA_TIMELINE = `

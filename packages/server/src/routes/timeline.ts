@@ -1,9 +1,7 @@
 import type { FastifyInstance } from 'fastify';
 import { parseTimelineTable, validateTimeline } from '@scenestitch/core';
 
-export async function timelineRoutes(
-  fastify: FastifyInstance,
-): Promise<void> {
+export async function timelineRoutes(fastify: FastifyInstance): Promise<void> {
   // POST /parse-timeline
   // Accepts a plain-text body (Markdown table, CSV, or TSV)
   fastify.post<{ Body: string }>(

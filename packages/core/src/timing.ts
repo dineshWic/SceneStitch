@@ -18,10 +18,7 @@ export interface FrameTimelineResult {
   totalFrames: number;
 }
 
-export function buildFrameTimeline(
-  scenes: Scene[],
-  fps: number = 30,
-): FrameTimelineResult {
+export function buildFrameTimeline(scenes: Scene[], fps: number = 30): FrameTimelineResult {
   const computedScenes: ComputedSceneFrame[] = [];
 
   for (const scene of scenes) {

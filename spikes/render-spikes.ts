@@ -15,11 +15,7 @@ import path from 'path';
 import { fileURLToPath } from 'url';
 import { execFileSync } from 'child_process';
 import { bundle } from '@remotion/bundler';
-import {
-  renderMedia,
-  selectComposition,
-  getCompositions,
-} from '@remotion/renderer';
+import { renderMedia, selectComposition, getCompositions } from '@remotion/renderer';
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = path.dirname(__filename);
@@ -50,8 +46,10 @@ interface ProbeResult {
 
 function ffprobe(filePath: string): ProbeResult {
   const raw = execFileSync('ffprobe', [
-    '-v', 'quiet',
-    '-print_format', 'json',
+    '-v',
+    'quiet',
+    '-print_format',
+    'json',
     '-show_streams',
     '-show_format',
     filePath,
@@ -141,8 +139,12 @@ async function runSpike2a(bundled: string): Promise<boolean> {
   const timeOk = duration < 3 * 60 * 1000;
 
   console.log('  ffprobe results:');
-  console.log(`    Duration: ${probe.duration.toFixed(3)}s  ${durationOk ? '✅' : '❌'} (expect 15.000s)`);
-  console.log(`    Resolution: ${probe.width}×${probe.height}  ${resOk ? '✅' : '❌'} (expect 1080×1920)`);
+  console.log(
+    `    Duration: ${probe.duration.toFixed(3)}s  ${durationOk ? '✅' : '❌'} (expect 15.000s)`,
+  );
+  console.log(
+    `    Resolution: ${probe.width}×${probe.height}  ${resOk ? '✅' : '❌'} (expect 1080×1920)`,
+  );
   console.log(`    FPS: ${probe.fps}  ${fpsOk ? '✅' : '❌'} (expect 30)`);
   console.log(`    Codec: ${probe.codec}`);
   console.log(`    Render time: ${msToHuman(duration)}  ${timeOk ? '✅' : '❌'} (target < 3 min)`);
@@ -165,7 +167,9 @@ async function runSpike2b(bundled: string): Promise<boolean> {
   const resOk = probe.width === 1080 && probe.height === 1920;
 
   console.log('  ffprobe results:');
-  console.log(`    Duration: ${probe.duration.toFixed(3)}s  ${durationOk ? '✅' : '❌'} (expect 3.000s)`);
+  console.log(
+    `    Duration: ${probe.duration.toFixed(3)}s  ${durationOk ? '✅' : '❌'} (expect 3.000s)`,
+  );
   console.log(`    Resolution: ${probe.width}×${probe.height}  ${resOk ? '✅' : '❌'}`);
   console.log(`    Codec: ${probe.codec}`);
   console.log('  Manual check required: inspect spike2b.mp4 for emoji rendering quality');
@@ -181,7 +185,12 @@ async function runSpike2c(bundled: string): Promise<boolean> {
   console.log('  Rendering (A) Remotion <Audio> composition ...');
 
   const audioOutPath = path.join(OUTPUT_DIR, 'spike2c-audio.mp4');
-  await renderComposition(bundled, 'Spike2cAudioComposition', audioOutPath, 'Spike 2c (A) Remotion Audio');
+  await renderComposition(
+    bundled,
+    'Spike2cAudioComposition',
+    audioOutPath,
+    'Spike 2c (A) Remotion Audio',
+  );
   const probeA = ffprobe(audioOutPath);
 
   const hasAudio = probeA.frames > 0;
@@ -189,31 +198,48 @@ async function runSpike2c(bundled: string): Promise<boolean> {
 
   console.log('  Rendering (B) silent Remotion + FFmpeg audio mux ...');
   const silentOutPath = path.join(OUTPUT_DIR, 'spike2c-silent.mp4');
-  await renderComposition(bundled, 'Spike2cSilentComposition', silentOutPath, 'Spike 2c (B) Silent+Mux');
+  await renderComposition(
+    bundled,
+    'Spike2cSilentComposition',
+    silentOutPath,
+    'Spike 2c (B) Silent+Mux',
+  );
 
   // FFmpeg mux: overlay VO + ducked music onto silent video
   const ffmpegMuxOut = path.join(OUTPUT_DIR, 'spike2c-ffmpeg-mux.mp4');
   console.log('  Running FFmpeg mux...');
   try {
-    execFileSync('ffmpeg', [
-      '-y',
-      '-i', silentOutPath,
-      '-i', path.join(SAMPLES_DIR, 'voiceover01.mp3'),
-      '-i', path.join(SAMPLES_DIR, 'music01.mp3'),
-      '-filter_complex',
+    execFileSync(
+      'ffmpeg',
       [
-        // Duck music when VO plays: VO runs 0–2.5s
-        `[2:a]volume=enable='between(t,0,2.5)':volume=0.15,volume=enable='not(between(t,0,2.5))':volume=0.8[music_ducked]`,
-        `[1:a][music_ducked]amix=inputs=2:duration=first:dropout_transition=0[mixed]`,
-      ].join(';'),
-      '-map', '0:v',
-      '-map', '[mixed]',
-      '-c:v', 'copy',
-      '-c:a', 'aac',
-      '-b:a', '192k',
-      '-shortest',
-      ffmpegMuxOut,
-    ], { stdio: ['ignore', 'pipe', 'pipe'] });
+        '-y',
+        '-i',
+        silentOutPath,
+        '-i',
+        path.join(SAMPLES_DIR, 'voiceover01.mp3'),
+        '-i',
+        path.join(SAMPLES_DIR, 'music01.mp3'),
+        '-filter_complex',
+        [
+          // Duck music when VO plays: VO runs 0–2.5s
+          `[2:a]volume=enable='between(t,0,2.5)':volume=0.15,volume=enable='not(between(t,0,2.5))':volume=0.8[music_ducked]`,
+          `[1:a][music_ducked]amix=inputs=2:duration=first:dropout_transition=0[mixed]`,
+        ].join(';'),
+        '-map',
+        '0:v',
+        '-map',
+        '[mixed]',
+        '-c:v',
+        'copy',
+        '-c:a',
+        'aac',
+        '-b:a',
+        '192k',
+        '-shortest',
+        ffmpegMuxOut,
+      ],
+      { stdio: ['ignore', 'pipe', 'pipe'] },
+    );
     console.log('    ✅ FFmpeg mux succeeded → spike2c-ffmpeg-mux.mp4');
   } catch (err) {
     console.error('    ❌ FFmpeg mux failed:', (err as Error).message);
@@ -255,7 +281,7 @@ async function runSpike2d(bundled: string): Promise<boolean> {
     const dur = endFrame - startFrame;
     totalFrames = Math.max(totalFrames, endFrame);
     console.log(
-      `   ${String(scene.id).padStart(2)}  ${String(scene.start).padEnd(7)}   ${String(scene.end).padEnd(5)}   ${String(startFrame).padStart(4)}   ${String(endFrame).padStart(4)}  ${String(dur).padStart(3)} frames`
+      `   ${String(scene.id).padStart(2)}  ${String(scene.start).padEnd(7)}   ${String(scene.end).padEnd(5)}   ${String(startFrame).padStart(4)}   ${String(endFrame).padStart(4)}  ${String(dur).padStart(3)} frames`,
     );
   }
 
@@ -271,7 +297,9 @@ async function runSpike2d(bundled: string): Promise<boolean> {
   const framesOk = probe.frames === 900;
 
   console.log('\n  ffprobe results:');
-  console.log(`    Duration: ${probe.duration.toFixed(3)}s  ${durationOk ? '✅' : '❌'} (expect 30.000s ± 1 frame)`);
+  console.log(
+    `    Duration: ${probe.duration.toFixed(3)}s  ${durationOk ? '✅' : '❌'} (expect 30.000s ± 1 frame)`,
+  );
   console.log(`    Frames: ${probe.frames}  ${framesOk ? '✅' : '❌'} (expect 900)`);
   console.log(`    FPS: ${probe.fps}`);
 
@@ -308,7 +336,9 @@ async function main() {
 
   // 2. List available compositions for verification
   const compositions = await getCompositions(bundled, { inputProps: {} });
-  console.log(`\n[2/5] Found ${compositions.length} compositions: ${compositions.map((c) => c.id).join(', ')}`);
+  console.log(
+    `\n[2/5] Found ${compositions.length} compositions: ${compositions.map((c) => c.id).join(', ')}`,
+  );
 
   // 3. Run spikes
   const results = {
@@ -326,7 +356,9 @@ async function main() {
     console.log(`  ${passed ? '✅' : '❌'} ${name}`);
   }
   const allPassed = Object.values(results).every(Boolean);
-  console.log(`\n  Gate G0: ${allPassed ? 'ALL SPIKES PASSED — proceed to Step 3 ✅' : 'SOME SPIKES FAILED — review before proceeding ❌'}`);
+  console.log(
+    `\n  Gate G0: ${allPassed ? 'ALL SPIKES PASSED — proceed to Step 3 ✅' : 'SOME SPIKES FAILED — review before proceeding ❌'}`,
+  );
   console.log('\n  Output files in ./output/');
   console.log('═══════════════════════════════════════════════════════════\n');
 

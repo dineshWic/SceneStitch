@@ -27,17 +27,22 @@ describe('Step 5 Done When: Video Normalization', () => {
   it('imports a rotated, non-standard fps clip and normalizes it to constant 30 fps', async () => {
     const dataDir = await makeTmpDir();
     const project = await createProject(dataDir, { name: 'Normalization Project' });
-    const projectId = (project as { id: string }).id;
+    const projectId = project.id;
 
     // 1. Generate a synthetic test clip with rotation metadata (90 degrees) and non-standard 24 fps
     const rawClipPath = path.join(dataDir, 'raw_phone_clip.mkv');
     await execFileAsync('ffmpeg', [
       '-y',
-      '-f', 'lavfi',
-      '-i', 'testsrc=duration=2:size=1920x1080:rate=24',
-      '-metadata:s:v:0', 'ROTATE=90',
-      '-c:v', 'libx264',
-      '-pix_fmt', 'yuv420p',
+      '-f',
+      'lavfi',
+      '-i',
+      'testsrc=duration=2:size=1920x1080:rate=24',
+      '-metadata:s:v:0',
+      'ROTATE=90',
+      '-c:v',
+      'libx264',
+      '-pix_fmt',
+      'yuv420p',
       rawClipPath,
     ]);
 

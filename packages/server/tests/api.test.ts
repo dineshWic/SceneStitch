@@ -4,7 +4,6 @@ import fs from 'fs/promises';
 import os from 'os';
 import { buildApp } from '../src/app.js';
 
-
 let tmpDir: string;
 
 afterEach(async () => {
@@ -164,7 +163,9 @@ describe('API Routes', () => {
       expect(res.statusCode).toBe(200);
       const body = JSON.parse(res.body);
       expect(body.ok).toBe(false);
-      expect(body.validationErrors.some((e: { code: string }) => e.code === 'GAP_DETECTED')).toBe(true);
+      expect(body.validationErrors.some((e: { code: string }) => e.code === 'GAP_DETECTED')).toBe(
+        true,
+      );
 
       await app.close();
     });
