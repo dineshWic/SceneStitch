@@ -11,6 +11,13 @@
     "test": "vitest run"
   },
   "dependencies": {
-    "@scenestitch/core": "workspace:*"
+    "@fastify/cors": "^11.3.1",
+    "@fastify/multipart": "^10.1.3",
+    "@scenestitch/core": "workspace:*",
+    "fastify": "^5.12.7",
+    "uuid": "^14.0.3"
+  },
+  "devDependencies": {
+    "@types/uuid": "^11.0.0"
   }
 }

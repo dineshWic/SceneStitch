@@ -1,4 +1,19 @@
-import { CORE_VERSION } from '@scenestitch/core';
+import path from 'path';
+import os from 'os';
+import { buildApp } from './app.js';
 
-export const SERVER_VERSION = '0.1.0';
-export const DEPENDS_ON_CORE = CORE_VERSION;
+const DATA_DIR = process.env['SCENESTITCH_DATA_DIR']
+  ?? path.join(os.homedir(), '.scenestitch', 'projects');
+
+const HOST = process.env['HOST'] ?? '127.0.0.1';
+const PORT = parseInt(process.env['PORT'] ?? '4000', 10);
+
+const app = buildApp({ dataDir: DATA_DIR, logger: true });
+
+app.listen({ port: PORT, host: HOST }, (err, address) => {
+  if (err) {
+    app.log.error(err);
+    process.exit(1);
+  }
+  app.log.info(`SceneStitch server listening at ${address}`);
+});
