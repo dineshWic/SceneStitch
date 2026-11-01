@@ -5,12 +5,14 @@ import { projectRoutes } from './routes/projects.js';
 import { assetRoutes } from './routes/assets.js';
 import { timelineRoutes } from './routes/timeline.js';
 import { workflowRoutes } from './routes/workflow.js';
+import type { RenderExecutor } from './services/render-queue.js';
 
 export interface AppOptions {
   dataDir: string;
   logger?: boolean;
   /** Max upload file size in bytes (default: 2 GB) */
   maxFileSize?: number;
+  renderExecutor?: RenderExecutor;
 }
 
 export function buildApp(options: AppOptions): FastifyInstance {
@@ -35,7 +37,7 @@ export function buildApp(options: AppOptions): FastifyInstance {
   fastify.register(projectRoutes, { dataDir });
   fastify.register(assetRoutes, { dataDir });
   fastify.register(timelineRoutes);
-  fastify.register(workflowRoutes, { dataDir });
+  fastify.register(workflowRoutes, { dataDir, renderExecutor: options.renderExecutor });
   fastify.setErrorHandler((error, _req, reply) => {
     const e = error as Error & { statusCode?: number };
     const status = e.name === 'ZodError' ? 400 : (e.statusCode ?? 500);

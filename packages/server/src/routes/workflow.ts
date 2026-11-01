@@ -15,17 +15,16 @@ import {
   safeProjectPath,
   createProject,
 } from '../services/project.js';
-import type { RenderJob } from '../services/render.js';
+import { RenderQueue, type RenderExecutor } from '../services/render-queue.js';
 import { importAsset } from '../services/asset.js';
 const exec = promisify(execFile);
-export async function workflowRoutes(app: FastifyInstance, { dataDir }: { dataDir: string }) {
-  const jobs = new Map<string, RenderJob>();
-  const controllers = new Map<string, AbortController>();
-  let queue = Promise.resolve();
-  app.addHook('onClose', async () => {
-    for (const controller of controllers.values()) controller.abort();
-    await queue;
-  });
+export async function workflowRoutes(
+  app: FastifyInstance,
+  { dataDir, renderExecutor }: { dataDir: string; renderExecutor?: RenderExecutor },
+) {
+  const queue = new RenderQueue(dataDir, renderExecutor);
+  await queue.init();
+  app.addHook('onClose', async () => queue.close());
   app.get('/setup', async () => {
     const checks = await Promise.all(
       ['ffmpeg', 'ffprobe'].map(async (name) => {
@@ -152,7 +151,7 @@ export async function workflowRoutes(app: FastifyInstance, { dataDir }: { dataDi
     }
     return reply.header('Content-Length', stat.size).send(createReadStream(file));
   });
-  app.get('/jobs', async () => [...jobs.values()]);
+  app.get('/jobs', async () => queue.list());
   app.post<{
     Params: { id: string };
     Body: {
@@ -220,15 +219,11 @@ export async function workflowRoutes(app: FastifyInstance, { dataDir }: { dataDi
   app.get<{ Params: { id: string } }>(
     '/jobs/:id',
     async (req, reply) =>
-      jobs.get(req.params.id) ?? reply.code(404).send({ error: 'Job not found' }),
+      queue.get(req.params.id) ?? reply.code(404).send({ error: 'Job not found' }),
   );
   app.post<{ Params: { id: string } }>('/jobs/:id/cancel', async (req, reply) => {
-    const job = jobs.get(req.params.id);
+    const job = await queue.cancel(req.params.id);
     if (!job) return reply.code(404).send({ error: 'Job not found' });
-    if (job.status === 'queued' || job.status === 'running') {
-      job.status = 'cancelled';
-      controllers.get(job.id)?.abort();
-    }
     return job;
   });
   app.post<{ Params: { id: string }; Body: { draft?: boolean } }>(
@@ -236,47 +231,7 @@ export async function workflowRoutes(app: FastifyInstance, { dataDir }: { dataDi
     async (req, reply) => {
       const project = await getProject(dataDir, req.params.id);
       if (!project) return reply.code(404).send({ error: 'Project not found' });
-      const job: RenderJob = {
-        id: randomUUID(),
-        projectId: req.params.id,
-        draft: req.body?.draft === true,
-        status: 'queued',
-        progress: 0,
-        logs: [],
-      };
-      jobs.set(job.id, job);
-      const controller = new AbortController();
-      controllers.set(job.id, controller);
-      const directory = path.dirname(safeProjectPath(dataDir, project.id, 'project.json'));
-      const output = path.join(directory, 'exports', `${job.id}.mp4`);
-      queue = queue.then(async () => {
-        if (controller.signal.aborted) return;
-        job.status = 'running';
-        try {
-          const { renderProject } = await import('../services/render.js');
-          job.verification = await renderProject(project, directory, output, {
-            draft: job.draft,
-            signal: controller.signal,
-            onProgress: (progress, message) => {
-              job.progress = progress;
-              if (job.logs.at(-1) !== message) job.logs.push(message);
-            },
-          });
-          job.status = 'done';
-          job.output = `/projects/${project.id}/files/exports/${job.id}.mp4`;
-        } catch (error) {
-          job.status = controller.signal.aborted ? 'cancelled' : 'failed';
-          job.logs.push((error as Error).message);
-        } finally {
-          controllers.delete(job.id);
-          await fs
-            .writeFile(
-              path.join(directory, 'exports', `${job.id}.job.json`),
-              JSON.stringify(job, null, 2),
-            )
-            .catch(() => {});
-        }
-      });
+      const job = await queue.enqueue(project.id, project, req.body?.draft === true);
       return reply.code(202).send(job);
     },
   );

@@ -30,6 +30,11 @@ Further acceptance work: full reference render and boundary/audio-sync measureme
 
 Phase 4 optional Whisper/TTS, word-level captions, tagged SFX library, GPU encoding, CTA end cards and hosted deployment remain backlog items, as specified in the plan.
 
-Progress delivery uses HTTP polling rather than WebSocket. Render job metadata persists in export files; the in-memory queue does not resume interrupted jobs after server restart. The UI supports scene references for split-screen sources; direct asset sources are also accepted by the schema.
+Progress delivery uses HTTP polling rather than WebSocket. Export records persist atomically in `.jobs/` and reload on startup. Interrupted jobs are marked failed with a retry message; incomplete video/sidecars are cleaned. Cancellation and failures are isolated so later queued exports continue. Interrupted jobs are not silently rerendered. The UI supports scene references for split-screen sources; direct asset sources are also accepted by the schema.
+
+## Continued development commits
+
+- `d03c360`: checkpoint of the local editor and export implementation verified above.
+- Export reliability step: durable queued/running/terminal job records, restart recovery, cancellation cleanup and tests for queue ordering and failure isolation.
 
 Music repeats use short overlapping fades at the seam. Caption styling is exposed through built-in presets rather than a full custom typography panel. Templates retain audio timing/mix settings with cleared media references. Undo uses bounded immutable project snapshots rather than Immer patches; it covers the editor's scene, asset metadata and audio edits.

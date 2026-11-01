@@ -53,7 +53,7 @@ pnpm --filter @scenestitch/cli exec node dist/index.js render /path/to/project -
 pnpm --filter @scenestitch/cli exec node dist/index.js render /path/to/project --final --output /path/to/output.mp4
 ```
 
-Core REST routes: `GET/POST /projects`, `GET/PUT/DELETE /projects/:id`, `POST /projects/:id/assets` (multipart), `POST /projects/:id/render`, `GET /jobs/:id`, `POST /jobs/:id/cancel`. Poll progress every ~600 ms. Jobs run sequentially. Completed job logs/verification are persisted beside exports. Media routes support HTTP byte ranges.
+Core REST routes: `GET/POST /projects`, `GET/PUT/DELETE /projects/:id`, `POST /projects/:id/assets` (multipart), `POST /projects/:id/render`, `GET /jobs/:id`, `POST /jobs/:id/cancel`. Poll progress every ~600 ms. Jobs run sequentially. Job records and completed verification results are saved atomically under the data directory's `.jobs/` folder and reloaded on startup. Interrupted exports are marked failed with a retry message and their incomplete files are removed. Cancelled waiting jobs are skipped; failures do not stop later exports. Media routes support HTTP byte ranges.
 
 `POST /projects/:id/split-voiceover` takes `{assetId, segments:[{sceneId,start,end}], trimSilence?:boolean}`. It cuts a long narration into per-scene assets and optionally trims leading/trailing silence. Source files remain intact.
 
