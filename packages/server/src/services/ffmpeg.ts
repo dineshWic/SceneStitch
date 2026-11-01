@@ -53,7 +53,7 @@ export async function generateThumbnail(
   outputPath: string,
   durationSecs?: number,
 ): Promise<void> {
-  const offset = durationSecs !== undefined ? Math.min(1, durationSecs / 2) : 1;
+  const offset = durationSecs !== undefined ? Math.min(1, durationSecs / 2) : 0;
 
   await fs.mkdir(path.dirname(outputPath), { recursive: true });
 
@@ -84,7 +84,7 @@ export function sanitizeFilename(filename: string): string {
 
   if (lastDot > 0) {
     rawBase = filename.slice(0, lastDot);
-    ext = filename.slice(lastDot);
+    ext = filename.slice(lastDot).replace(/[^a-zA-Z0-9.]/g, '_');
   } else if (lastDot === 0) {
     rawBase = '';
     ext = filename;

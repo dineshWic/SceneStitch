@@ -4,6 +4,8 @@ import { toFrame } from './timing.js';
 export interface FitOptions {
   inPoint?: number;
   fps?: number;
+  minSpeed?: number;
+  maxSpeed?: number;
 }
 
 export interface FitResult {
@@ -50,7 +52,10 @@ export function calculateFit(
         warnings.push('In-point is beyond source duration; cannot compute speed fit.');
       } else {
         playbackRate = availableDuration / sceneDuration;
-        if (playbackRate > 3.0 || playbackRate < 0.25) {
+        if (
+          playbackRate > (options?.maxSpeed ?? 2.0) ||
+          playbackRate < (options?.minSpeed ?? 0.5)
+        ) {
           warnings.push(`Extreme playback rate multiplier (${playbackRate.toFixed(2)}x).`);
         }
       }

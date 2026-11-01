@@ -5,6 +5,8 @@
   "type": "module",
   "packageManager": "pnpm@11.19.0",
   "scripts": {
+    "dev": "node scripts/dev.mjs",
+    "start": "node scripts/start.mjs",
     "build": "pnpm -r build",
     "test": "pnpm -r test",
     "lint": "eslint .",

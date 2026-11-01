@@ -5,3 +5,5 @@ export * from './timing.js';
 export * from './parser.js';
 export * from './validator.js';
 export * from './fit.js';
+export * from './audio.js';
+export * from './workflow.js';

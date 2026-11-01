@@ -36,7 +36,7 @@ describe('Step 5 Done When: Video Normalization', () => {
       '-f',
       'lavfi',
       '-i',
-      'testsrc=duration=2:size=1920x1080:rate=24',
+      'testsrc=duration=2:size=320x180:rate=24',
       '-metadata:s:v:0',
       'ROTATE=90',
       '-c:v',

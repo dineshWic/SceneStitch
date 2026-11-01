@@ -14,6 +14,12 @@ export function validateTimeline(scenes: Scene[]): ValidationError[] {
   for (let i = 0; i < scenes.length; i++) {
     const scene = scenes[i];
     if (!scene) continue;
+    if (i === 0 && scene.start > EPSILON && scene.end > scene.start)
+      errors.push({
+        sceneId: scene.id,
+        code: 'GAP_DETECTED',
+        message: 'Timeline must start at 0 seconds',
+      });
 
     // Check 1: Zero or negative duration
     if (scene.start >= scene.end) {

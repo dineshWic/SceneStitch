@@ -24,17 +24,23 @@ export function parseTime(timeStr: string): number {
   if (clean.includes(':')) {
     const parts = clean.split(':');
     if (parts.length === 2 && parts[0] !== undefined && parts[1] !== undefined) {
-      const minutes = parseFloat(parts[0]);
-      const seconds = parseFloat(parts[1]);
-      if (isNaN(minutes) || isNaN(seconds)) {
+      const minutes = Number(parts[0]);
+      const seconds = Number(parts[1]);
+      if (
+        !Number.isFinite(minutes) ||
+        !Number.isFinite(seconds) ||
+        minutes < 0 ||
+        seconds < 0 ||
+        seconds >= 60
+      ) {
         throw new Error(`Invalid minute:second format: "${timeStr}"`);
       }
       return minutes * 60 + seconds;
     }
   }
 
-  const val = parseFloat(clean);
-  if (isNaN(val)) {
+  const val = Number(clean);
+  if (!Number.isFinite(val) || val < 0) {
     throw new Error(`Invalid time number: "${timeStr}"`);
   }
   return val;
@@ -95,7 +101,12 @@ export function parseTimelineTable(text: string): ParseResult {
     } else {
       // CSV or TSV
       const sep = rawLine.includes('\t') ? '\t' : ',';
-      cells = rawLine.split(sep).map((c) => c.trim());
+      cells =
+        sep === '\t'
+          ? rawLine.split(sep).map((c) => c.trim())
+          : (rawLine.match(/(?:"(?:[^"]|"")*"|[^,]*)(?:,|$)/g) ?? [])
+              .filter(Boolean)
+              .map((c) => c.replace(/,$/, '').trim().replace(/^"|"$/g, '').replace(/""/g, '"'));
     }
 
     if (cells.length < 2) continue;
@@ -105,6 +116,7 @@ export function parseTimelineTable(text: string): ParseResult {
     if (firstCell.includes('time') || firstCell.includes('start') || firstCell === 's') {
       continue;
     }
+    if (firstCell === 'scene' || firstCell === 'id') continue;
 
     let timeCell = '';
     let idCell = '';
@@ -123,6 +135,22 @@ export function parseTimelineTable(text: string): ParseResult {
     const range0 = cells[0] ? tryParseRange0(cells[0]) : null;
     const range1 = cells[1] ? tryParseRange0(cells[1]) : null;
 
+    if (
+      !range0 &&
+      !range1 &&
+      cells.length >= 3 &&
+      /^\d/.test(cells[0] ?? '') &&
+      /^\d/.test(cells[1] ?? '')
+    ) {
+      try {
+        const start = parseTime(cells[0]!);
+        const end = parseTime(cells[1]!);
+        scenes.push({ id: scenes.length + 1, start, end, label: cells.slice(2).join(', ') });
+        continue;
+      } catch {
+        /* Report the malformed row below. */
+      }
+    }
     if (range0) {
       timeCell = cells[0]!;
       idCell = cells[1] ?? `${scenes.length + 1}`;

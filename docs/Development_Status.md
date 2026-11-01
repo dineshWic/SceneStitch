@@ -1,0 +1,35 @@
+# Implementation and acceptance status
+
+The original plan is a target specification, not evidence of completed acceptance gates. This file records implementation status separately; do not infer performance or output parity from the existence of code.
+
+## Implemented
+
+- Project CRUD, duplication, templates, atomic writes, autosave, rolling snapshots, recovery and session undo/redo.
+- Asset upload, probing, constant-fps video normalization, thumbnails, audio peaks, license fields and filename assignment.
+- Scene table, paste/import review, frame rounding, reorder/delete/ripple, fit/crop/motion controls, shared Remotion preview.
+- VO and SFX timing, negative-offset source trimming, fades, music ducking/overrides, captions and safe-zone overlay.
+- Incoming transitions and split-screen scene references with missing/cycle diagnostics.
+- Sequential render jobs, progress polling, cancellation, temporary output cleanup, draft/final rendering, two-pass loudness processing and ffprobe verification.
+- CLI export, SRT, credits, WAV mix, offline plan extraction and optional cloud extraction with schema validation/fallback.
+
+## Acceptance work
+
+Actual build, test and render results are recorded below once checks run. Performance gates require representative hardware and the full reference project's real media. Emoji appearance depends on installed fonts; cross-platform font parity still requires visual verification. Cloud extraction requires a user-configured API key and has not been tested against a paid provider here.
+
+## Verification performed
+
+- All five packages build; all package TypeScript checks pass.
+- Core: 36 tests; composition: 3; server: 29; CLI: 1; web: 1. These include real ffprobe and video normalization, audio envelopes, negative-offset source trimming, storage snapshots and render-media HTTP ranges.
+- Headless Chromium UI smoke test: created a project, added a scene, extracted/reviewed/applied a two-scene production plan and confirmed autosave, without an application error.
+- Real synthetic eight-second render: 240 frames, 360 × 640, 30 fps, H.264 with audio, -14.41 LUFS, no project warnings. SRT, credits and WAV were produced. Frames from image, video and split-screen scenes were visually inspected; the caption emoji rendered correctly on this Windows machine.
+- Follow-up one-second export tested the restricted media server and overlapping music repeats: 30 frames, H.264/AAC, -14.03 LUFS and -12.37 dBTP true peak. The deliberately short scene correctly produced a narration-overrun warning.
+- This export took about 193 seconds including bundling. **The performance gates are not met by this measurement.** This is not a 1080p reference-project benchmark. Further profiling and full-reference validation are required before claiming G2/G3 or a production v1.0 release.
+- Chromium, Node and FFmpeg used for verification were installed as portable tools in the workspace. `Start-SceneStitch.ps1` can use those tools on this Windows workspace, or fall back to tools on PATH.
+
+Further acceptance work: full reference render and boundary/audio-sync measurements, preview/export frame comparison across platforms, measured core coverage >=80%, novice workflow timing, render cancellation/failure recovery during active encoding, cloud-provider extraction tests, and production packaging checks. The optional Dockerfile has not been built here.
+
+Phase 4 optional Whisper/TTS, word-level captions, tagged SFX library, GPU encoding, CTA end cards and hosted deployment remain backlog items, as specified in the plan.
+
+Progress delivery uses HTTP polling rather than WebSocket. Render job metadata persists in export files; the in-memory queue does not resume interrupted jobs after server restart. The UI supports scene references for split-screen sources; direct asset sources are also accepted by the schema.
+
+Music repeats use short overlapping fades at the seam. Caption styling is exposed through built-in presets rather than a full custom typography panel. Templates retain audio timing/mix settings with cleared media references. Undo uses bounded immutable project snapshots rather than Immer patches; it covers the editor's scene, asset metadata and audio edits.

@@ -3,6 +3,8 @@ import fs from 'fs/promises';
 import { v4 as uuidv4 } from 'uuid';
 import type { Asset } from '@scenestitch/core';
 import { probeFile } from './ffprobe.js';
+import { execFile } from 'node:child_process';
+import { promisify } from 'node:util';
 import { normalizeVideo, generateThumbnail, sanitizeFilename } from './ffmpeg.js';
 import {
   getProject,
@@ -47,10 +49,12 @@ export async function importAsset(
   const isImage =
     mimeType.startsWith('image/') ||
     ['.jpg', '.jpeg', '.png', '.webp', '.gif', '.bmp'].includes(ext);
+  if (!isVideo && !isImage && !['.mp3', '.wav', '.m4a', '.aac', '.ogg', '.flac'].includes(ext))
+    throw Object.assign(new Error('Unsupported media format'), { statusCode: 400 });
 
   // 1. Save original
   const originalDir = getOriginalDir(dataDir, projectId);
-  const originalPath = path.join(originalDir, sanitized);
+  const originalPath = path.join(originalDir, `${assetId}-${sanitized}`);
   await fs.writeFile(originalPath, sourceBuffer);
 
   // 2. Probe
@@ -64,7 +68,9 @@ export async function importAsset(
   if (isVideo) {
     workFilename = `${assetId}.mp4`;
     assetType = 'video';
-    await normalizeVideo(originalPath, path.join(workDir, workFilename));
+    await normalizeVideo(originalPath, path.join(workDir, workFilename), {
+      targetFps: project.settings.fps,
+    });
   } else if (isImage) {
     workFilename = `${assetId}${ext}`;
     assetType = 'image';
@@ -93,9 +99,44 @@ export async function importAsset(
     id: assetId,
     type: assetType,
     path: workPath,
+    name: originalFilename,
+    width: probe.width,
+    height: probe.height,
+    fps: probe.fps,
+    rotation: probe.rotation,
+    ...(isImage || isVideo ? { thumbnail: thumbPath } : {}),
     ...(isVideo || assetType === 'audio' ? { duration: probe.duration } : {}),
     ...(isVideo ? { hasAudio: probe.hasAudio } : {}),
   };
+  if (assetType === 'audio') {
+    const { stdout } = await promisify(execFile)(
+      'ffmpeg',
+      [
+        '-v',
+        'error',
+        '-i',
+        path.join(workDir, workFilename),
+        '-ac',
+        '1',
+        '-ar',
+        '100',
+        '-f',
+        'f32le',
+        'pipe:1',
+      ],
+      { encoding: 'buffer', maxBuffer: 64 * 1024 * 1024 },
+    );
+    const peaks: number[] = [];
+    const samples = Math.floor(stdout.length / 4);
+    const step = Math.max(1, Math.ceil(samples / 200));
+    for (let i = 0; i < samples; i += step) {
+      let peak = 0;
+      for (let j = i; j < Math.min(samples, i + step); j++)
+        peak = Math.max(peak, Math.abs(stdout.readFloatLE(j * 4)));
+      peaks.push(Math.min(1, peak));
+    }
+    asset.peaks = peaks;
+  }
 
   // 6. Append to project.json
   await addAssetToProject(dataDir, projectId, asset);

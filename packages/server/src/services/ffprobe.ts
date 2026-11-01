@@ -11,6 +11,7 @@ export interface ProbeData {
   rotation: number;
   hasAudio: boolean;
   codec: string;
+  audioCodec?: string;
   format: string;
   size: number;
 }
@@ -102,6 +103,7 @@ export async function probeFile(filePath: string): Promise<ProbeData> {
     rotation,
     hasAudio: Boolean(audioStream),
     codec: videoStream?.codec_name ?? 'unknown',
+    audioCodec: audioStream?.codec_name,
     format: raw.format.format_name ?? 'unknown',
     size: parseInt(raw.format.size ?? '0', 10),
   };

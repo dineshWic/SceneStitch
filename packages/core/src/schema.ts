@@ -10,6 +10,16 @@ export const AssetSchema = z.object({
   duration: z.number().nonnegative().optional(),
   hasAudio: z.boolean().optional(),
   license: z.string().optional(),
+  name: z.string().optional(),
+  source: z.string().optional(),
+  licenseUrl: z.string().optional(),
+  commercialUse: z.boolean().optional(),
+  width: z.number().optional(),
+  height: z.number().optional(),
+  fps: z.number().optional(),
+  rotation: z.number().optional(),
+  thumbnail: z.string().optional(),
+  peaks: z.array(z.number()).optional(),
 });
 export type Asset = z.infer<typeof AssetSchema>;
 
@@ -38,12 +48,16 @@ export const CaptionSchema = z.object({
   text: z.string(),
   offset: z.number().optional().default(0),
   style: z.string().optional().default('bigBold'),
+  end: z.number().nonnegative().optional(),
+  animation: z.enum(['none', 'pop', 'fade']).optional(),
 });
 export type Caption = z.infer<typeof CaptionSchema>;
 
 export const VoiceoverSchema = z.object({
   assetId: z.string(),
   offset: z.number().optional().default(0),
+  gainDb: z.number().optional(),
+  playbackRate: z.number().min(0.5).max(1.1).optional(),
 });
 export type Voiceover = z.infer<typeof VoiceoverSchema>;
 
@@ -51,6 +65,8 @@ export const SfxSchema = z.object({
   assetId: z.string(),
   offset: z.number().optional().default(0),
   gainDb: z.number().optional().default(0),
+  fadeIn: z.number().nonnegative().optional(),
+  fadeOut: z.number().nonnegative().optional(),
 });
 export type Sfx = z.infer<typeof SfxSchema>;
 
@@ -62,8 +78,19 @@ export type TransitionIn = z.infer<typeof TransitionInSchema>;
 
 export const TemplateSchema = z.object({
   type: z.string(),
-  left: z.object({ fromScene: z.union([z.number(), z.string()]) }).optional(),
-  right: z.object({ fromScene: z.union([z.number(), z.string()]) }).optional(),
+  left: z
+    .object({
+      fromScene: z.union([z.number(), z.string()]).optional(),
+      assetId: z.string().optional(),
+    })
+    .optional(),
+  right: z
+    .object({
+      fromScene: z.union([z.number(), z.string()]).optional(),
+      assetId: z.string().optional(),
+    })
+    .optional(),
+  dividerColor: z.string().optional(),
   zoom: z.array(z.number()).optional(),
 });
 export type Template = z.infer<typeof TemplateSchema>;
@@ -79,14 +106,18 @@ export const SceneSchema = z.object({
   sfx: z.array(SfxSchema).optional(),
   transitionIn: TransitionInSchema.optional(),
   template: TemplateSchema.optional(),
+  script: z.string().optional(),
+  sfxNotes: z.string().optional(),
 });
 export type Scene = z.infer<typeof SceneSchema>;
 
 export const SettingsSchema = z.object({
-  width: z.number().positive().default(1080),
-  height: z.number().positive().default(1920),
+  width: z.number().int().positive().multipleOf(2).default(1080),
+  height: z.number().int().positive().multipleOf(2).default(1920),
   fps: z.number().positive().default(30),
   defaultFit: FitPolicySchema.default('trim'),
+  minSpeed: z.number().positive().optional(),
+  maxSpeed: z.number().positive().optional(),
 });
 export type Settings = z.infer<typeof SettingsSchema>;
 
@@ -101,9 +132,11 @@ export const MusicSchema = z.object({
   assetId: z.string(),
   baseDb: z.number().default(-18),
   duckDb: z.number().default(-6),
-  attack: z.number().default(0.15),
-  release: z.number().default(0.35),
-  fadeOut: z.number().default(1.5),
+  attack: z.number().nonnegative().default(0.15),
+  release: z.number().nonnegative().default(0.35),
+  fadeOut: z.number().nonnegative().default(1.5),
+  fadeIn: z.number().nonnegative().optional(),
+  inPoint: z.number().nonnegative().optional(),
   overrides: z.array(MusicOverrideSchema).optional(),
 });
 export type Music = z.infer<typeof MusicSchema>;
@@ -122,7 +155,7 @@ export const ExportSettingsSchema = z.object({
 export type ExportSettings = z.infer<typeof ExportSettingsSchema>;
 
 export const ProjectSchema = z.object({
-  schemaVersion: z.number().default(1),
+  schemaVersion: z.literal(1).default(1),
   name: z.string(),
   settings: SettingsSchema,
   assets: z.array(AssetSchema).default([]),

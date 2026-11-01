@@ -6,11 +6,20 @@
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
   "scripts": {
-    "build": "tsc -p tsconfig.build.json",
+    "dev": "vite --host 127.0.0.1",
+    "build": "tsc -p tsconfig.build.json && vite build",
     "type-check": "tsc --noEmit",
     "test": "vitest run"
   },
   "dependencies": {
+    "@remotion/player": "4.0.533",
+    "@scenestitch/composition": "workspace:*",
+    "react": "19.3.0",
+    "react-dom": "19.3.0",
+    "remotion": "4.0.533",
     "@scenestitch/core": "workspace:*"
+  },
+  "devDependencies": {
+    "vite": "^6.4.1"
   }
 }
