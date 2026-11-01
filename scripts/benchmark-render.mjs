@@ -89,6 +89,10 @@ const project = ProjectSchema.parse({
 });
 await fs.writeFile(path.join(directory, 'project.json'), JSON.stringify(project, null, 2));
 const draft = !process.argv.includes('--final');
+const labelIndex = process.argv.indexOf('--label');
+const label = labelIndex < 0 ? (draft ? 'draft' : 'final') : process.argv[labelIndex + 1];
+if (!label || !/^[\w-]+$/.test(label))
+  throw new Error('--label must contain only letters, numbers, underscores or hyphens');
 const requested = process.argv.indexOf('--runs');
 const runs = requested < 0 ? 1 : Number(process.argv[requested + 1]);
 if (!Number.isInteger(runs) || runs < 1 || runs > 3)
@@ -96,23 +100,26 @@ if (!Number.isInteger(runs) || runs < 1 || runs > 3)
 const results = [];
 for (let i = 0; i < runs; i++) {
   let last = '';
+  let lastBucket = -1;
   const result = await renderProject(
     project,
     directory,
-    path.join(directory, `${draft ? 'draft' : 'final'}-${i + 1}.mp4`),
+    path.join(directory, `${label}-${i + 1}.mp4`),
     {
       draft,
       onProgress: (progress, message) => {
-        if (message !== last) {
+        const bucket = Math.floor(progress * 10);
+        if (message !== last || bucket !== lastBucket) {
           console.log(`${Math.round(progress * 100)}% ${message}`);
           last = message;
+          lastBucket = bucket;
         }
       },
     },
   );
   results.push({ run: i + 1, draft, ...result });
   await fs.writeFile(
-    path.join(directory, `${draft ? 'draft' : 'final'}-results.json`),
+    path.join(directory, `${label}-results.json`),
     JSON.stringify(results, null, 2),
   );
   console.log(JSON.stringify(results.at(-1), null, 2));

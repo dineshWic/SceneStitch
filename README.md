@@ -22,6 +22,8 @@ Remotion downloads a headless Chromium runtime on first export. To use an existi
 
 Exports reuse one browser for metadata and rendering and precompute music-ducking intervals. `SCENESTITCH_RENDER_CONCURRENCY` optionally selects an integer worker count up to the machine's available cores (default: up to four). Verification includes phase timings and the actual render profile. Draft uses half resolution when this produces even H.264 dimensions; unusual project dimensions retain full resolution. Draft encoding uses `ultrafast`; final uses `fast` at CRF 18.
 
+Draft exports use smaller cached copies of referenced visuals under each project's `cache/draft/` folder. Cache keys include source size/modification time, output dimensions and fps. Audio, timing, originals and final-export media stay unchanged. Unused visuals are not processed. Removing the draft cache is safe when no export is active; the next draft recreates it.
+
 ## Assemble a video
 
 1. Create a project. Set dimensions/fps in Project settings if needed.
@@ -78,6 +80,6 @@ The core coverage command enforces at least 80% for lines, statements, functions
 
 `node scripts/smoke-render.mjs` renders an eight-second synthetic fixture and writes verification results under `output/smoke-project`. With the production server running, `node scripts/smoke-ui.mjs` checks project creation, reviewed timeline import and autosave in a headless browser. Set `SCENESTITCH_BROWSER_EXECUTABLE` when using a local Chrome binary.
 
-`node scripts/benchmark-render.mjs --draft --runs 2` constructs a synthetic ten-scene, 30-second reference fixture and records cold/warm timings. Use `--final` for 1080 × 1920 output. Results, media, project JSON and exports are under `output/reference-benchmark/`. This exercises the reference timings and features with synthetic test media; it is not the original production footage or a user usability study.
+`node scripts/benchmark-render.mjs --draft --runs 2` constructs a synthetic ten-scene, 30-second reference fixture and records cold/warm timings. Use `--final` for 1080 × 1920 output, and `--label comparison` to keep separate result sets. Results, media, project JSON and exports are under `output/reference-benchmark/`. This exercises the reference timings and features with synthetic test media; it is not the original production footage or a user usability study.
 
 See [development status](docs/Development_Status.md) for verified checks and remaining acceptance work. Phase 4 optional integrations are a separate backlog. Review Remotion licensing before commercial/team use.

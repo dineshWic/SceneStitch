@@ -16,6 +16,7 @@ import {
 import { probeFile } from './ffprobe.js';
 import { serveRenderAssets } from './render-assets.js';
 import { renderProfile, withAbort } from './render-profile.js';
+import { draftProxies } from './draft-proxies.js';
 const exec = promisify(execFile);
 let compositionBundle: Promise<string> | undefined;
 export interface RenderJob {
@@ -99,9 +100,14 @@ export async function renderProject(
       throw error;
     });
     const serveUrl = await withAbort(compositionBundle, options.signal);
-    mark('browser');
+    mark('proxies');
     check();
-    media = await serveRenderAssets(project, directory);
+    if (options.draft) options.onProgress?.(0.02, 'Preparing draft media');
+    const mediaProject = options.draft
+      ? await draftProxies(project, directory, profile.scale, options.signal)
+      : project;
+    mark('browser');
+    media = await serveRenderAssets(mediaProject, directory);
     const inputProps = { project: media.project };
     const browserExecutable = process.env['SCENESTITCH_BROWSER_EXECUTABLE'];
     browser = await openBrowser('chrome', { browserExecutable });
