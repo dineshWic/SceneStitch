@@ -55,3 +55,6 @@ jobs:
 
       - name: Test
         run: pnpm -r test
+
+      - name: Core coverage (80% minimum)
+        run: pnpm test:coverage

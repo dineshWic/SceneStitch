@@ -67,11 +67,14 @@ In the editor, expand an audio asset and choose **Split narration into scenes**.
 pnpm build
 pnpm type-check
 pnpm test
+pnpm test:coverage
 pnpm lint
 pnpm format
 ```
 
 Packages: `core` (Zod schema, timing/parser, fit, audio, workflow utilities), `composition` (shared visuals/captions/audio), `server` (storage, FFmpeg and render queue), `web` (editor), `cli` (headless rendering).
+
+The core coverage command enforces at least 80% for lines, statements, functions and branches, locally and in CI. HTML and JSON summaries are written to `packages/core/coverage/`.
 
 `node scripts/smoke-render.mjs` renders an eight-second synthetic fixture and writes verification results under `output/smoke-project`. With the production server running, `node scripts/smoke-ui.mjs` checks project creation, reviewed timeline import and autosave in a headless browser. Set `SCENESTITCH_BROWSER_EXECUTABLE` when using a local Chrome binary.
 
