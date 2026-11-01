@@ -4,12 +4,14 @@ import {
   audioClips,
   dbToGain,
   fadeGain,
-  musicDbAt,
+  createMusicEnvelope,
   toFrame,
   type Project,
 } from '@scenestitch/core';
 const src = (path: string) => (/^(https?:|data:|file:)/.test(path) ? path : staticFile(path));
 export const AudioTracks: React.FC<{ project: Project }> = ({ project }) => {
+  const envelope = React.useMemo(() => createMusicEnvelope(project), [project]);
+  const clips = React.useMemo(() => audioClips(project), [project]);
   const fps = project.settings.fps;
   const duration = project.scenes.at(-1)?.end ?? 0;
   const music = project.music;
@@ -23,7 +25,7 @@ export const AudioTracks: React.FC<{ project: Project }> = ({ project }) => {
   const repeats = Math.ceil(toFrame(duration, fps) / stride);
   return (
     <>
-      {audioClips(project).map((clip, i) => (
+      {clips.map((clip, i) => (
         <Sequence
           key={i}
           from={toFrame(clip.start, fps)}
@@ -52,7 +54,7 @@ export const AudioTracks: React.FC<{ project: Project }> = ({ project }) => {
                 startFrom={toFrame(music.inPoint ?? 0, fps)}
                 endAt={toFrame(asset.duration ?? 0, fps)}
                 volume={(frame) =>
-                  dbToGain(musicDbAt(project, (i * stride + frame) / fps)) *
+                  dbToGain(envelope((i * stride + frame) / fps)) *
                   fadeGain((i * stride + frame) / fps, duration, music.fadeIn, music.fadeOut) *
                   fadeGain(
                     frame / fps,

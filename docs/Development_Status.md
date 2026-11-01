@@ -36,5 +36,7 @@ Progress delivery uses HTTP polling rather than WebSocket. Export records persis
 
 - `d03c360`: checkpoint of the local editor and export implementation verified above.
 - Export reliability step: durable queued/running/terminal job records, restart recovery, cancellation cleanup and tests for queue ordering and failure isolation.
+- `b960fa0`: committed export reliability. Queue/API tests: 11 passed, including active cancellation, skipped waiting jobs, continued processing after failure, and restart cleanup.
+- Render performance step: compiled ducking envelopes, one Chromium instance per export, configurable worker count, explicit draft/final encoder presets, safe odd-dimension handling, cancellable bundle waiting, and per-phase timing reports. Core tests: 37 passed; render configuration/queue tests: 5 passed. Build, type checks, lint and formatting pass. A repeatable 30-second synthetic benchmark is provided; measured results follow separately.
 
 Music repeats use short overlapping fades at the seam. Caption styling is exposed through built-in presets rather than a full custom typography panel. Templates retain audio timing/mix settings with cleared media references. Undo uses bounded immutable project snapshots rather than Immer patches; it covers the editor's scene, asset metadata and audio edits.

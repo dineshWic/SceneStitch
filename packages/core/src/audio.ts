@@ -59,24 +59,31 @@ export function voiceoverIntervals(project: Project): Array<{ start: number; end
   return merged;
 }
 export function musicDbAt(project: Project, time: number): number {
+  return createMusicEnvelope(project)(time);
+}
+/** Compile intervals once for per-frame gain callbacks in preview and export. */
+export function createMusicEnvelope(project: Project): (time: number) => number {
   const music = project.music;
-  if (!music) return -120;
-  let depth = 0;
-  for (const interval of voiceoverIntervals(project)) {
-    const attack = music.attack;
-    const release = music.release;
-    let amount = 0;
-    if (time >= interval.start && time <= interval.end) amount = 1;
-    else if (attack > 0 && time >= interval.start - attack && time < interval.start)
-      amount = (time - interval.start + attack) / attack;
-    else if (release > 0 && time > interval.end && time < interval.end + release)
-      amount = 1 - (time - interval.end) / release;
-    depth = Math.max(depth, amount);
-  }
-  const override = (music.overrides ?? [])
-    .filter((o) => time >= o.start && time < o.end)
-    .reduce((sum, o) => sum + o.gainDb, 0);
-  return music.baseDb + music.duckDb * depth + override;
+  if (!music) return () => -120;
+  const intervals = voiceoverIntervals(project);
+  const { attack, release, baseDb, duckDb } = music;
+  const overrides = (music.overrides ?? []).map((o) => ({ ...o }));
+  return (time) => {
+    let depth = 0;
+    for (const interval of intervals) {
+      let amount = 0;
+      if (time >= interval.start && time <= interval.end) amount = 1;
+      else if (attack > 0 && time >= interval.start - attack && time < interval.start)
+        amount = (time - interval.start + attack) / attack;
+      else if (release > 0 && time > interval.end && time < interval.end + release)
+        amount = 1 - (time - interval.end) / release;
+      depth = Math.max(depth, amount);
+    }
+    const override = overrides
+      .filter((o) => time >= o.start && time < o.end)
+      .reduce((sum, o) => sum + o.gainDb, 0);
+    return baseDb + duckDb * depth + override;
+  };
 }
 export function fadeGain(time: number, duration: number, fadeIn = 0, fadeOut = 0): number {
   return Math.max(

@@ -5,6 +5,7 @@ import {
   musicDbAt,
   fadeGain,
   voiceoverIntervals,
+  createMusicEnvelope,
 } from '../src/index.js';
 const project = () =>
   ProjectSchema.parse({
@@ -35,6 +36,17 @@ const project = () =>
     },
   });
 describe('Audio timing and ducking', () => {
+  it('compiles an immutable envelope matching direct gain evaluation across the timeline', () => {
+    const p = project();
+    const envelope = createMusicEnvelope(p);
+    for (let frame = 0; frame < 120; frame++)
+      expect(envelope(frame / 30)).toBeCloseTo(musicDbAt(p, frame / 30));
+    p.music!.baseDb = -30;
+    expect(envelope(0)).toBe(-18);
+    expect(createMusicEnvelope(p)(0)).toBe(-30);
+    delete p.music;
+    expect(createMusicEnvelope(p)(0)).toBe(-120);
+  });
   it('trims negative-time audio without shifting its content', () => {
     const clips = audioClips(project());
     expect(clips[1]).toMatchObject({ start: 0, trimStart: 0.2, duration: 0.3 });

@@ -1,11 +1,10 @@
 import path from 'node:path';
 import fs from 'node:fs/promises';
-import os from 'node:os';
 import { fileURLToPath } from 'node:url';
 import { execFile } from 'node:child_process';
 import { promisify } from 'node:util';
 import { bundle } from '@remotion/bundler';
-import { renderMedia, selectComposition, makeCancelSignal } from '@remotion/renderer';
+import { renderMedia, selectComposition, makeCancelSignal, openBrowser } from '@remotion/renderer';
 import {
   buildFrameTimeline,
   validateTimeline,
@@ -16,6 +15,7 @@ import {
 } from '@scenestitch/core';
 import { probeFile } from './ffprobe.js';
 import { serveRenderAssets } from './render-assets.js';
+import { renderProfile, withAbort } from './render-profile.js';
 const exec = promisify(execFile);
 let compositionBundle: Promise<string> | undefined;
 export interface RenderJob {
@@ -38,6 +38,21 @@ export async function renderProject(
     signal?: AbortSignal;
   } = {},
 ): Promise<Record<string, unknown>> {
+  const started = performance.now();
+  const timings: Record<string, number> = {};
+  let phase = 'bundle';
+  let phaseStarted = started;
+  const mark = (next: string) => {
+    const now = performance.now();
+    timings[phase] = (timings[phase] ?? 0) + (now - phaseStarted) / 1000;
+    phase = next;
+    phaseStarted = now;
+  };
+  const profile = renderProfile(
+    project.settings,
+    options.draft ?? false,
+    process.env['SCENESTITCH_RENDER_CONCURRENCY'],
+  );
   const errors = validateTimeline(project.scenes);
   if (!project.scenes.length || errors.length)
     throw new Error(errors.map((e) => e.message).join('\n') || 'Add scenes before exporting');
@@ -56,8 +71,12 @@ export async function renderProject(
   const normalized = `${output}.normalized.mp4`;
   let completed = false;
   let media: Awaited<ReturnType<typeof serveRenderAssets>> | undefined;
+  let browser: Awaited<ReturnType<typeof openBrowser>> | undefined;
   const cancel = makeCancelSignal();
-  const abort = () => cancel.cancel();
+  const abort = () => {
+    cancel.cancel();
+    void browser?.close({ silent: true }).catch(() => {});
+  };
   options.signal?.addEventListener('abort', abort, { once: true });
   const check = () => {
     if (options.signal?.aborted) throw new Error('Render cancelled');
@@ -79,21 +98,28 @@ export async function renderProject(
       compositionBundle = undefined;
       throw error;
     });
-    const serveUrl = await compositionBundle;
+    const serveUrl = await withAbort(compositionBundle, options.signal);
+    mark('browser');
     check();
     media = await serveRenderAssets(project, directory);
     const inputProps = { project: media.project };
     const browserExecutable = process.env['SCENESTITCH_BROWSER_EXECUTABLE'];
+    browser = await openBrowser('chrome', { browserExecutable });
+    check();
+    mark('metadata');
     const composition = await selectComposition({
+      puppeteerInstance: browser,
       serveUrl,
       id: 'SceneStitchMain',
       inputProps,
       browserExecutable,
     });
     // Render at scale: project coordinate space stays identical in preview and export.
-    const scale = options.draft ? 0.5 : 1;
+    const { scale } = profile;
+    mark('frames');
     await fs.mkdir(path.dirname(output), { recursive: true });
     await renderMedia({
+      puppeteerInstance: browser,
       browserExecutable,
       composition,
       serveUrl,
@@ -102,13 +128,15 @@ export async function renderProject(
       audioCodec: 'aac',
       outputLocation: temporary,
       scale,
-      crf: options.draft ? 28 : 18,
-      concurrency: Math.max(1, Math.min(4, os.availableParallelism() - 1)),
+      crf: profile.crf,
+      x264Preset: profile.x264Preset,
+      concurrency: profile.concurrency,
       cancelSignal: cancel.cancelSignal,
       onProgress: ({ progress }) =>
         options.onProgress?.(0.05 + progress * 0.75, 'Rendering frames'),
     });
     check();
+    mark('audio');
     const probe = await probeFile(temporary);
     let finalSource = temporary;
     let loudness: number | undefined;
@@ -184,6 +212,7 @@ export async function renderProject(
       }
     }
     check();
+    mark('verification');
     const final = await probeFile(finalSource);
     if (
       Math.abs(final.duration - totalFrames / project.settings.fps) >
@@ -205,9 +234,20 @@ export async function renderProject(
     check();
     await fs.rename(finalSource, output);
     completed = true;
+    mark('complete');
+    timings['total'] = (performance.now() - started) / 1000;
     options.onProgress?.(1, 'Export verified');
-    return { ...final, totalFrames, loudnessLufs: loudness, truePeakDbtp: truePeak, warnings };
+    return {
+      ...final,
+      totalFrames,
+      loudnessLufs: loudness,
+      truePeakDbtp: truePeak,
+      warnings,
+      timings,
+      renderProfile: profile,
+    };
   } finally {
+    await browser?.close({ silent: true }).catch(() => {});
     await media?.close();
     options.signal?.removeEventListener('abort', abort);
     await fs.rm(temporary, { force: true });
