@@ -1,4 +1,4 @@
-/* global document, window, Event */
+/* global document, window, Event, fetch */
 import { openBrowser } from '@remotion/renderer';
 import process from 'node:process';
 import console from 'node:console';
@@ -6,6 +6,7 @@ import { setTimeout } from 'node:timers';
 const browser = await openBrowser('chrome', {
   browserExecutable: process.env.SCENESTITCH_BROWSER_EXECUTABLE,
 });
+const baseUrl = process.env.SCENESTITCH_TEST_URL ?? 'http://127.0.0.1:4000';
 try {
   const page = await browser.newPage({
     context: () => null,
@@ -17,7 +18,7 @@ try {
     },
     onLog: () => {},
   });
-  await page.goto({ url: 'http://127.0.0.1:4000', timeout: 30000 });
+  await page.goto({ url: baseUrl, timeout: 30000 });
   const wait = async (predicate) => {
     const deadline = Date.now() + 15000;
     while (!(await page.evaluate(predicate))) {
@@ -68,6 +69,41 @@ try {
     title: document.title,
   }));
   if (result.errors) throw new Error(result.errors);
+  const identity = await page.evaluate(async () => {
+    const projectId = document.querySelector('select[aria-label="Open project"]').value;
+    const response = await fetch(`/api/projects/${projectId}/render`, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ draft: true }),
+    });
+    if (!response.ok) throw new Error('Unable to create export test');
+    return { projectId, jobId: (await response.json()).id };
+  });
+  // Missing visuals should fail before rendering, and the diagnostic must survive a page reload.
+  const deadline = Date.now() + 10000;
+  while (true) {
+    const response = await globalThis.fetch(`${baseUrl}/api/jobs/${identity.jobId}`);
+    if ((await response.json()).status === 'failed') break;
+    if (Date.now() > deadline) throw new Error('Invalid export did not fail promptly');
+    await new Promise((resolve) => setTimeout(resolve, 100));
+  }
+  await page.goto({ url: baseUrl, timeout: 30000 });
+  await wait(() => document.querySelector('select[aria-label="Open project"]').options.length > 1);
+  await page.evaluate((projectId) => {
+    const select = document.querySelector('select[aria-label="Open project"]');
+    select.value = projectId;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  }, identity.projectId);
+  await wait(
+    () => document.querySelector('select[aria-label="Previous exports"]')?.options.length > 1,
+  );
+  await page.evaluate((jobId) => {
+    const select = document.querySelector('select[aria-label="Previous exports"]');
+    select.value = jobId;
+    select.dispatchEvent(new Event('change', { bubbles: true }));
+  }, identity.jobId);
+  await wait(() => !!document.querySelector('.export pre')?.textContent.includes('missing visual'));
+  result.exportHistoryRecovered = true;
   console.log(JSON.stringify(result, null, 2));
 } finally {
   await browser.close({ silent: true });

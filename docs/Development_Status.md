@@ -43,5 +43,7 @@ Progress delivery uses HTTP polling rather than WebSocket. Export records persis
 - `f8a922c`: committed coverage gates and edge-case tests.
 - Thirty-second synthetic draft baseline: 900 frames at 540 × 960, H.264/AAC, -14.05 LUFS, -9.44 dBTP and no project warnings. Cold run 234.4 s (40.6 s bundle, 182.8 s frames); warm run 184.6 s (174.4 s frames). Both remain above the 45 s draft target. The eight-core Windows verification machine reports approximately 20 GB RAM.
 - Draft proxy step: referenced visuals are resized into a source-keyed cache; timing/composition and originals stay unchanged. A real FFmpeg test verifies smaller dimensions, exact duration/fps, original preservation, cache reuse, unused-media skipping and cancellation. Follow-up performance measurements are separate from this correctness test.
+- `a8fb9ce`: committed draft proxy caching.
+- Export-history UI step: saved jobs can be selected in the editor after reload. The Chromium smoke test creates a deliberately invalid export, reloads the page, reopens the project and confirms that its persisted failure diagnostic is visible. Full regression: 85 tests passed (45 core, 35 server, 3 composition, 1 CLI, 1 web).
 
 Music repeats use short overlapping fades at the seam. Caption styling is exposed through built-in presets rather than a full custom typography panel. Templates retain audio timing/mix settings with cleared media references. Undo uses bounded immutable project snapshots rather than Immer patches; it covers the editor's scene, asset metadata and audio edits.

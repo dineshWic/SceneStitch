@@ -42,6 +42,8 @@ Draft exports use smaller cached copies of referenced visuals under each project
 
 Changes autosave after 650 ms. Twenty previous versions are kept on disk; **Saved versions** restores them. Browser recovery stores pending edits if saving was interrupted. Undo/redo keeps up to 100 changes within an editing session. Save template creates a new project with scene structure and styles, with media attachments cleared. Duplicate copies project media.
 
+**Previous exports** in the export panel reopens saved results and failure logs after a reload or server restart. Running exports can be selected there to resume watching progress.
+
 Shortcuts outside text inputs: Space/K playback, arrows frame step, J/L previous/next scene, Ctrl+Z/Y undo/redo, Ctrl+S save.
 
 ## Production plan import

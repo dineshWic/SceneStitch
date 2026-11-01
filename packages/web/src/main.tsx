@@ -91,6 +91,7 @@ function App() {
   }, [draft]);
   const [cloud, setCloud] = useState(false);
   const [job, setJob] = useState<Job>();
+  const [exportHistory, setExportHistory] = useState<Job[]>([]);
   const [setup, setSetup] = useState<{
     checks: Array<{ name: string; ok: boolean; detail: string }>;
     freeBytes: number;
@@ -114,6 +115,7 @@ function App() {
     void api<typeof setup>('/setup').then(setSetup).catch(fail);
   }, [refresh, fail]);
   const open = (p: Stored) => {
+    setJob(undefined);
     lastSaved.current = JSON.stringify(p);
     setProject(p);
     setSelected(0);
@@ -159,6 +161,22 @@ function App() {
       });
     await saveQueue.current;
   }, []);
+  useEffect(() => {
+    let active = true;
+    if (!project) {
+      setExportHistory([]);
+      return;
+    }
+    void api<Array<Job & { projectId: string }>>('/jobs')
+      .then((jobs) => {
+        if (active)
+          setExportHistory(jobs.filter((item) => item.projectId === project.id).reverse());
+      })
+      .catch(fail);
+    return () => {
+      active = false;
+    };
+  }, [project?.id, job?.status, fail]);
   useEffect(() => {
     if (!project || JSON.stringify(project) === lastSaved.current) return;
     localStorage.setItem(`scenestitch-recovery-${project.id}`, JSON.stringify(project));
@@ -1343,6 +1361,23 @@ function App() {
             </details>
             <div className="export">
               <h3>Make it a video</h3>
+              <label>
+                Previous exports
+                <select
+                  aria-label="Previous exports"
+                  value={job?.id ?? ''}
+                  onChange={(event) =>
+                    setJob(exportHistory.find((item) => item.id === event.target.value))
+                  }
+                >
+                  <option value="">Choose an export…</option>
+                  {exportHistory.map((item) => (
+                    <option key={item.id} value={item.id}>
+                      {item.status} · {item.id.slice(0, 8)}
+                    </option>
+                  ))}
+                </select>
+              </label>
               <label>
                 Platform preset
                 <select
