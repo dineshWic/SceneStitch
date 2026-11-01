@@ -1,0 +1,266 @@
+{
+  "date": "2026-11-01",
+  "fixture": "Synthetic reference timeline, 10 scenes, 30 seconds",
+  "environment": {
+    "platform": "Windows",
+    "availableCores": 8,
+    "reportedRamGB": 19.81
+  },
+  "regressionTests": 85,
+  "coreCoverage": {
+    "lines": 99.14,
+    "statements": 99.14,
+    "functions": 95.65,
+    "branches": 92.2
+  },
+  "cancellation": {
+    "realChromiumRenderCancelled": true,
+    "incompleteFilesRemoved": true
+  },
+  "history": {
+    "browserReloadPassed": true,
+    "serverRestartPassed": true
+  },
+  "baselineDraft": [
+    {
+      "run": 1,
+      "draft": true,
+      "duration": 30,
+      "width": 540,
+      "height": 960,
+      "fps": 30,
+      "rotation": 0,
+      "hasAudio": true,
+      "codec": "h264",
+      "audioCodec": "aac",
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "size": 4954586,
+      "totalFrames": 900,
+      "loudnessLufs": -14.05,
+      "truePeakDbtp": -9.44,
+      "warnings": [],
+      "timings": {
+        "bundle": 40.60466039999947,
+        "browser": 1.080420700000599,
+        "metadata": 0.4836469000000507,
+        "frames": 182.79657859999966,
+        "audio": 9.25976080000028,
+        "verification": 0.13224440000019969,
+        "total": 234.3573373999996
+      },
+      "renderProfile": {
+        "scale": 0.5,
+        "concurrency": 4,
+        "crf": 28,
+        "x264Preset": "ultrafast"
+      }
+    },
+    {
+      "run": 2,
+      "draft": true,
+      "duration": 30,
+      "width": 540,
+      "height": 960,
+      "fps": 30,
+      "rotation": 0,
+      "hasAudio": true,
+      "codec": "h264",
+      "audioCodec": "aac",
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "size": 4953975,
+      "totalFrames": 900,
+      "loudnessLufs": -14.05,
+      "truePeakDbtp": -9.44,
+      "warnings": [],
+      "timings": {
+        "bundle": 0.002766200000420213,
+        "browser": 0.5704465999994427,
+        "metadata": 0.9831337000001222,
+        "frames": 174.40854829999992,
+        "audio": 8.184444800000637,
+        "verification": 0.5006033999994397,
+        "total": 184.64995220000017
+      },
+      "renderProfile": {
+        "scale": 0.5,
+        "concurrency": 4,
+        "crf": 28,
+        "x264Preset": "ultrafast"
+      }
+    }
+  ],
+  "cachedDraft": [
+    {
+      "run": 1,
+      "draft": true,
+      "duration": 30,
+      "width": 540,
+      "height": 960,
+      "fps": 30,
+      "rotation": 0,
+      "hasAudio": true,
+      "codec": "h264",
+      "audioCodec": "aac",
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "size": 4338249,
+      "totalFrames": 900,
+      "loudnessLufs": -14.05,
+      "truePeakDbtp": -9.44,
+      "warnings": [],
+      "timings": {
+        "bundle": 40.6681126,
+        "proxies": 2.9175633999999993,
+        "browser": 1.1726082000000024,
+        "metadata": 2.418250699999997,
+        "frames": 107.73365940000001,
+        "audio": 4.838682499999996,
+        "verification": 0.10666750000001048,
+        "total": 159.8555602
+      },
+      "renderProfile": {
+        "scale": 0.5,
+        "concurrency": 4,
+        "crf": 28,
+        "x264Preset": "ultrafast"
+      }
+    },
+    {
+      "run": 2,
+      "draft": true,
+      "duration": 30,
+      "width": 540,
+      "height": 960,
+      "fps": 30,
+      "rotation": 0,
+      "hasAudio": true,
+      "codec": "h264",
+      "audioCodec": "aac",
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "size": 4338249,
+      "totalFrames": 900,
+      "loudnessLufs": -14.05,
+      "truePeakDbtp": -9.44,
+      "warnings": [],
+      "timings": {
+        "bundle": 0.0018337999999930616,
+        "proxies": 0.0032000000000116414,
+        "browser": 0.5080743999999832,
+        "metadata": 0.3898893000000098,
+        "frames": 105.07965509999997,
+        "audio": 7.232367800000008,
+        "verification": 0.19557569999998667,
+        "total": 113.41060469999996
+      },
+      "renderProfile": {
+        "scale": 0.5,
+        "concurrency": 4,
+        "crf": 28,
+        "x264Preset": "ultrafast"
+      }
+    }
+  ],
+  "finalFourWorkers": [
+    {
+      "run": 1,
+      "draft": false,
+      "duration": 30,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "rotation": 0,
+      "hasAudio": true,
+      "codec": "h264",
+      "audioCodec": "aac",
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "size": 8450368,
+      "totalFrames": 900,
+      "loudnessLufs": -14.05,
+      "truePeakDbtp": -9.44,
+      "warnings": [],
+      "timings": {
+        "bundle": 5.042291100000001,
+        "proxies": 0.00007369999999991705,
+        "browser": 0.6279187000000002,
+        "metadata": 0.5363903999999993,
+        "frames": 170.8884051,
+        "audio": 5.357520199999999,
+        "verification": 0.13783260000002337,
+        "total": 182.5904521
+      },
+      "renderProfile": {
+        "scale": 1,
+        "concurrency": 4,
+        "crf": 18,
+        "x264Preset": "fast"
+      }
+    }
+  ],
+  "finalSixWorkers": [
+    {
+      "run": 1,
+      "draft": false,
+      "duration": 30,
+      "width": 1080,
+      "height": 1920,
+      "fps": 30,
+      "rotation": 0,
+      "hasAudio": true,
+      "codec": "h264",
+      "audioCodec": "aac",
+      "format": "mov,mp4,m4a,3gp,3g2,mj2",
+      "size": 8450368,
+      "totalFrames": 900,
+      "loudnessLufs": -14.05,
+      "truePeakDbtp": -9.44,
+      "warnings": [],
+      "timings": {
+        "bundle": 2.5133034000000003,
+        "proxies": 0.00003060000000004948,
+        "browser": 0.5565389000000001,
+        "metadata": 0.4618172,
+        "frames": 166.95298350000002,
+        "audio": 5.054352199999994,
+        "verification": 0.14532130000001053,
+        "total": 175.68437020000002
+      },
+      "renderProfile": {
+        "scale": 1,
+        "concurrency": 6,
+        "crf": 18,
+        "x264Preset": "fast"
+      }
+    }
+  ],
+  "decodedVerification": {
+    "frames": 900,
+    "duration": 30.016,
+    "width": 1080,
+    "height": 1920,
+    "videoCodec": "h264",
+    "audioCodec": "aac",
+    "flashFrame": 669,
+    "flashMean": 255,
+    "firstCutFrame": 66,
+    "cutPixelDifference": 115.91206918724279,
+    "narrationBandRatio": 3814308.0595065607,
+    "jCutBandRatio": 421.47520028879563,
+    "inspectedFrames": [
+      0,
+      3,
+      65,
+      66,
+      668,
+      669,
+      675,
+      816,
+      899
+    ]
+  },
+  "limitations": [
+    "Synthetic media; original production footage not validated",
+    "Shared verification environment, not isolated performance trials",
+    "Audio-window checks are not sub-frame sync measurements",
+    "45-second draft target remains unmet",
+    "Cross-platform parity and novice usability remain unverified"
+  ]
+}

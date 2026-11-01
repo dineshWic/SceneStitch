@@ -84,4 +84,8 @@ The core coverage command enforces at least 80% for lines, statements, functions
 
 `node scripts/benchmark-render.mjs --draft --runs 2` constructs a synthetic ten-scene, 30-second reference fixture and records cold/warm timings. Use `--final` for 1080 × 1920 output, and `--label comparison` to keep separate result sets. Results, media, project JSON and exports are under `output/reference-benchmark/`. This exercises the reference timings and features with synthetic test media; it is not the original production footage or a user usability study.
 
+After constructing that fixture, `node scripts/smoke-cancel.mjs` cancels a real Chromium render after frame processing starts and checks for leftover outputs. `node scripts/verify-reference.mjs [export.mp4]` decodes the final fixture, checks 900 frames, the first cut, white-flash frame, narration/J-cut spectral windows and writes a boundary contact sheet. Those audio checks confirm content in planned windows; they are not a sub-frame sync measurement. Set `SCENESTITCH_TEST_URL` to run the browser smoke test against a different local server.
+
+Measured on the verification machine (8 cores, about 20 GB RAM): cached draft exports improved from 184.6 s to 113.4 s. A final 1080p synthetic reference export took 175.7 s with `SCENESTITCH_RENDER_CONCURRENCY=6`. The 45 s draft target is still unmet; timings are machine-specific. See [recorded verification](docs/verification/2026-11-01.json).
+
 See [development status](docs/Development_Status.md) for verified checks and remaining acceptance work. Phase 4 optional integrations are a separate backlog. Review Remotion licensing before commercial/team use.
